@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Stack;
 
 public class SolverGraph {
+	
 	/**
 	 * the graph that will be solved.
 	 */
@@ -26,7 +27,9 @@ public class SolverGraph {
 	 * The second node to which we get and calculate the forward paths and their
 	 * gain
 	 */
-	 Integer des;
+	 private Integer des;
+	 	
+	 private Integer src;
 	/**
 	 * It is used to get path or loop during DFS recursion whether to Forward path
 	 * or loop DFS
@@ -49,7 +52,9 @@ public class SolverGraph {
 	 */
 	
 	int noVerticies;
+	
 	HashMap<Path<Integer, Integer>, Integer> deltaNGain;
+	
 	Integer delta;
 	/**
 	 * Constructor.
@@ -94,7 +99,7 @@ public class SolverGraph {
 		}
 		visited[v] = true;
 		s.push(v);
-		for (Pair<Integer, Integer> i : g.adj.get(v)) {
+		for (Edge<Integer, Integer> i : g.adj.get(v)) {
 			if (!visited[(int) i.vertex]) {
 				dfs(i.vertex);
 				visited[(int) i.vertex] = false;
@@ -145,7 +150,7 @@ public class SolverGraph {
 	}
 
 	/**
-	 * 
+	 * loop dfs
 	 * @param v
 	 * @return
 	 */
@@ -159,7 +164,7 @@ public class SolverGraph {
 		} else {
 			visited[v] = true;
 			s.push(v);
-			for (Pair<Integer, Integer> i : g.adj.get(v)) {
+			for (Edge<Integer, Integer> i : g.adj.get(v)) {
 				cDfs(i.vertex);
 			}
 			s.pop();// backtracking
@@ -225,11 +230,10 @@ public class SolverGraph {
 	private void nNonToutchinLoops(int n) {
 		ArrayList<NTLoop> x = new ArrayList<>();// store new level in x
 		ArrayList<NTLoop> prevLevel = nonTouchingLoops.get(n - 1);// previous level
-//		System.out.println("# " + (n + 1));
 		int plSize = prevLevel.size();// prevLevel size
 		for (int i = 0; i < plSize - 1; i++) {
 			NTLoop k = prevLevel.get(i);// non-touching loops
-			Path pk = k.loops.get(k.loops.size() - 1);// get first loop from this non-touching loops
+			Path pk = k.loops.get(k.loops.size() - 1);// get last loop from this non-touching loops
 			int sk = k.loops.size();
 			for (int j = i + 1; j < plSize; j++) {
 				NTLoop m = prevLevel.get(j);// next non-touching loops on this level
@@ -261,7 +265,7 @@ public class SolverGraph {
 	public void calculateDeltaN() {
 //		System.out.println("Delta");
 		if(nonTouchingLoops == null || nonTouchingLoops.isEmpty())getNonTouchingLoops();
-		if(forwardPaths == null || forwardPaths.isEmpty())getForwardPaths(0,des);
+		if(forwardPaths == null || forwardPaths.isEmpty())getForwardPaths(src,des);
 		HashMap<Path<Integer,Integer>,ArrayList<ArrayList<NTLoop>>> deltan= new HashMap<>();
 		Path<Integer,Integer> p;
 		Path<Integer,Integer> p2;
@@ -290,10 +294,9 @@ public class SolverGraph {
 			deltaNGain.put(p, gn);
 		}
 	}
-	Integer calculateDelta() {
+	public Integer calculateDelta() {
 		int one = 1;
 		delta = 1;
-		calculateDeltaN();
 		for(int i = 0; i < nonTouchingLoops.size();i++) {
 			ArrayList<NTLoop> a = nonTouchingLoops.get(i);
 			one *=-1;
@@ -303,16 +306,25 @@ public class SolverGraph {
 		}
 		return delta;
 	}
-	Double calculateOverAllTF() {
+	
+	public Double calculateOverAllTF(Integer input, Integer output) {
+		if (input == null || output == null) return null;
+		this.des = output;
+		this.src = input;
 		Double tf;
+		calculateDeltaN();
 		delta = calculateDelta();
 		Integer summation =0;
+		
 		for(Path p : forwardPaths) {
 			Integer t = deltaNGain.get(p);
 			Integer fg = (Integer) p.getGain();
 			summation += t * fg;
 		}
+		
 		tf = summation.doubleValue()/delta.doubleValue();
+		
 		return tf;
 	}
+	
 }

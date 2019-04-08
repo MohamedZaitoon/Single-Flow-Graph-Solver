@@ -1,7 +1,5 @@
 package sfg.util;
 
-import java.util.ArrayList;
-
 public class unitTest {
 
 	
@@ -95,8 +93,7 @@ public class unitTest {
 		*/System.out.println("#########################");
 //		System.out.println(sg.getNonTouchingLoops());
 //		System.out.println(sg.calculateDelta());
-		sg.des = 5;
-		String c = String.format("%.5g", sg.calculateOverAllTF());
+		String c = String.format("%.5g", sg.calculateOverAllTF(0,5));
 		System.out.println(c);
 		
 		
